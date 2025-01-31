@@ -42,5 +42,5 @@
 }
 
 @utility container {
-    @apply mx-auto px-4 max-w-7xl;
+  @apply mx-auto max-w-7xl px-4;
 }
