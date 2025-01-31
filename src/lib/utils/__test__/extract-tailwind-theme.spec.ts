@@ -112,7 +112,7 @@ describe('extractTailwindTheme', () => {
   })
 
   it('should correctly extract text variables with line height', () => {
-const cssString: string = `
+    const cssString: string = `
   --font-sans: var(--font-freesentation), sans-serif;
   --font-mukta: var(--font-mukta), sans-serif;
   --text-display-1: 3rem;
@@ -124,11 +124,38 @@ const cssString: string = `
   --shadow-normal: 0px 1px 4px 0px rgba(96, 100, 136, 0.04);
   --color-primary: #18a0fb;
   --radius-lg: calc(1rem - 6px);
-`;
+`
     expect(extractTailwindTheme(cssString).text).toEqual([
       { name: 'display-1', value: '3rem', lineHeight: '130%' },
       { name: 'display-2', value: '2.5rem', lineHeight: '130%' },
       { name: 'title-1', value: '2rem', lineHeight: '130%' },
+    ])
+  })
+
+  it('should sanitize CSS string correctly', () => {
+    const cssString: string = `  --shadow-normal: 0px 1px 4px 0px rgba(96, 100, 136, 0.04),
+    1px 4px 16px 0px rgba(96, 100, 136, 0.08);
+  --shadow-strong: 1px -2px 10px 0px rgba(96, 100, 136, 0.1),
+    -1px 4px 16px 0px rgba(96, 100, 136, 0.12);
+  --shadow-heavy: 1px 8px 20px 0px rgba(70, 79, 94, 0.2),
+    -1px -8px 16px 0px rgba(50, 55, 63, 0.16);`
+
+    expect(extractTailwindTheme(cssString).shadow).toEqual([
+      {
+        name: 'normal',
+        value:
+          '0px 1px 4px 0px rgba(96, 100, 136, 0.04), 1px 4px 16px 0px rgba(96, 100, 136, 0.08)',
+      },
+      {
+        name: 'strong',
+        value:
+          '1px -2px 10px 0px rgba(96, 100, 136, 0.1), -1px 4px 16px 0px rgba(96, 100, 136, 0.12)',
+      },
+      {
+        name: 'heavy',
+        value:
+          '1px 8px 20px 0px rgba(70, 79, 94, 0.2), -1px -8px 16px 0px rgba(50, 55, 63, 0.16)',
+      },
     ])
   })
 })
