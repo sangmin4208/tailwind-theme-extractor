@@ -15,37 +15,52 @@ type ThemeCategory =
 type ThemeVariable = {
   name: string
   value: string
+  lineHeight?: string
 }
 
 type TailwindThemeType = {
   [key in ThemeCategory]: ThemeVariable[]
 }
 
-const parseVariables = (
-  css: string,
-  prefix: ThemeCategory
-): ThemeVariable[] => {
-  const regex = new RegExp(`--${prefix}-([a-zA-Z0-9-]+):\s*([^;]+);`, 'g')
-  const matches = [...css.matchAll(regex)].map((match) => ({
-    name: match[1],
-    value: match[2].trim(),
-  }))
-  return matches.filter(({ name }) => name !== '*')
-}
+const parseVariables = (css: string, prefix: ThemeCategory): ThemeVariable[] => {
+  const variables: Record<string, ThemeVariable> = {};
 
-export const extractTailwindTheme = (cssString: string): TailwindThemeType => {
+  // Extract base variables
+  const baseRegex = new RegExp(`--${prefix}-([a-zA-Z0-9-]+):\\s*([^;]+);`, 'g');
+
+  for (const match of css.matchAll(baseRegex)) {
+    const name = match[1];
+    const value = match[2].trim();
+    variables[name] = { name, value };
+  }
+
+  const lineHeightRegex = new RegExp(`--${prefix}-([a-zA-Z0-9-]+)--line-height:\\s*([^;]+);`, 'g');
+  // Extract line-height and merge into existing variables
+  for (const match of css.matchAll(lineHeightRegex)) {
+    const name = match[1];
+    const lineHeight = match[2].trim();
+    if (variables[name]) {
+      variables[name].lineHeight = lineHeight;
+    }
+  }
+
+  return Object.values(variables).filter(variable => !variable.name.includes('--line-height'));
+};
+export const extractTailwindTheme = (css: string): TailwindThemeType => {
   return {
-    color: parseVariables(cssString, 'color'),
-    text: parseVariables(cssString, 'text'),
-    shadow: parseVariables(cssString, 'shadow'),
-    radius: parseVariables(cssString, 'radius'),
-    font: parseVariables(cssString, 'font'),
-    spacing: parseVariables(cssString, 'spacing'),
-    breakpoint: parseVariables(cssString, 'breakpoint'),
-    container: parseVariables(cssString, 'container'),
-    tracking: parseVariables(cssString, 'tracking'),
-    leading: parseVariables(cssString, 'leading'),
-    blur: parseVariables(cssString, 'blur'),
-    animation: parseVariables(cssString, 'animation'),
+    color: parseVariables(css, 'color'),
+    text: parseVariables(css, 'text'),
+    shadow: parseVariables(css, 'shadow'),
+    radius: parseVariables(css, 'radius'),
+    font: parseVariables(css, 'font'),
+    spacing: parseVariables(css, 'spacing'),
+    breakpoint: parseVariables(css, 'breakpoint'),
+    container: parseVariables(css, 'container'),
+    tracking: parseVariables(css, 'tracking'),
+    leading: parseVariables(css, 'leading'),
+    blur: parseVariables(css, 'blur'),
+    animation: parseVariables(css, 'animation'),
   }
 }
+
+

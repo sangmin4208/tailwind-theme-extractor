@@ -110,4 +110,25 @@ describe('extractTailwindTheme', () => {
     expect(result.blur).toEqual([])
     expect(result.animation).toEqual([])
   })
+
+  it('should correctly extract text variables with line height', () => {
+const cssString: string = `
+  --font-sans: var(--font-freesentation), sans-serif;
+  --font-mukta: var(--font-mukta), sans-serif;
+  --text-display-1: 3rem;
+  --text-display-1--line-height: 130%;
+  --text-display-2: 2.5rem;
+  --text-display-2--line-height: 130%;
+  --text-title-1: 2rem;
+  --text-title-1--line-height: 130%;
+  --shadow-normal: 0px 1px 4px 0px rgba(96, 100, 136, 0.04);
+  --color-primary: #18a0fb;
+  --radius-lg: calc(1rem - 6px);
+`;
+    expect(extractTailwindTheme(cssString).text).toEqual([
+      { name: 'display-1', value: '3rem', lineHeight: '130%' },
+      { name: 'display-2', value: '2.5rem', lineHeight: '130%' },
+      { name: 'title-1', value: '2rem', lineHeight: '130%' },
+    ])
+  })
 })

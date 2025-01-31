@@ -42,10 +42,12 @@ export default function Home() {
         />
 
         <div
-          className={'bg-primary relative text-primary-foreground rounded p-5 text-sm'}
+          className={
+            'bg-primary text-primary-foreground relative rounded p-5 text-sm'
+          }
         >
-          <Button onClick={handleCopy} className={'absolute top-5 right-5'}>
-            <Copy/>
+          <Button onClick={handleCopy} className={'absolute right-5 top-5'}>
+            <Copy />
           </Button>
           <pre>{JSON.stringify(tailwindTheme, null, 2)}</pre>
         </div>
